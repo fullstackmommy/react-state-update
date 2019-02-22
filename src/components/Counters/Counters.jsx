@@ -1,12 +1,9 @@
 import React, {Component} from "react";
 import Counter from "../Counter/Counter";
-import produce, {setAutoFreeze} from "immer";
+import produce from "immer";
 
 export class Counters extends Component {
-  constructor(props) {
-    super(props);
-    setAutoFreeze(false);
-  }
+  // constructor(props) {   super(props);   setAutoFreeze(false); }
   state = {
     data: [
       {
@@ -46,13 +43,26 @@ export class Counters extends Component {
 
   handleReset = () => {
 
+    const updater = (state) => {
+      return produce(state, draft => {
+        draft
+          .data
+          .map(counter => {
+            counter.value = 0;
+            return counter;
+          });
+      })
+    };
+
+    this.setState(updater);
+    /*
     const copy = [...this.state.data]
 
     const updated = copy.map(counter => {
       counter.value = 0;
       return counter;
     })
-    this.setState({data: updated});
+    this.setState({data: updated});*/
   }
 
   render() {
