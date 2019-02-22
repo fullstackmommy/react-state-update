@@ -1,8 +1,12 @@
 import React, {Component} from "react";
 import Counter from "../Counter/Counter";
-import {cloneDeep} from "lodash";
+import produce, {setAutoFreeze} from "immer";
 
 export class Counters extends Component {
+  constructor(props) {
+    super(props);
+    setAutoFreeze(false);
+  }
   state = {
     data: [
       {
@@ -24,22 +28,24 @@ export class Counters extends Component {
   }
 
   handleIncrement = (counterId) => {
-    //TODO: To check article on async update of counter
-    const copy = cloneDeep(this.state.data)
-    // try using cloneDeep from lodash
-    console.log("Before", JSON.stringify(this.state.data));
-    copy
-      .find(element => element.id === counterId)
-      .value += 1;
-    console.log("After: state", JSON.stringify(this.state.data));
-    console.log("After: copy", JSON.stringify(copy));
+    // TODO: To check article on async update of counter try using cloneDeep from
+    // lodash console.log("Before", JSON.stringify(this.state.data));
 
-    this.setState({data: copy});
+    const updater = (state) => {
+      return produce(state, draft => {
+        draft
+          .data
+          .find(element => element.id === counterId)
+          .value += 1;
+      })
+    };
 
-    //this.settingState(counterId, 1)
+    this.setState(updater);
+    //this.setState({data: updated}); this.settingState(counterId, 1)
   };
 
   handleReset = () => {
+
     const copy = [...this.state.data]
 
     const updated = copy.map(counter => {
@@ -48,6 +54,7 @@ export class Counters extends Component {
     })
     this.setState({data: updated});
   }
+
   render() {
     const {data} = this.state;
 
